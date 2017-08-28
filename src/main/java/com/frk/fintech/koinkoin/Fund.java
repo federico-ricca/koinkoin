@@ -19,17 +19,41 @@ public class Fund {
 		return currency;
 	}
 
-	public void withdraw(BigDecimal withdrawalAmount)
-			throws InsufficientFundsException {
+	public void withdraw(BigDecimal withdrawalAmount, Currency currency)
+			throws InsufficientFundsException, InvalidCurrency {
+		if (!this.getCurrency().equals(currency)) {
+			throw new InvalidCurrency(currency);
+		}
+
 		synchronized (lock) {
 			if (amount.compareTo(withdrawalAmount) >= 0) {
 				amount.subtract(withdrawalAmount);
-				
+
 				return;
 			}
 		}
-		
-		throw new InsufficientFundsException("Cannot withdraw " + withdrawalAmount + "; Actual funds: " + amount);
+
+		throw new InsufficientFundsException("Cannot withdraw "
+				+ withdrawalAmount + "; Actual funds: " + amount);
 	}
 
+	public void deposit(BigDecimal expectedProfit, Currency currency)
+			throws InvalidCurrency, InsufficientFundsException {
+		if (!this.getCurrency().equals(currency)) {
+			throw new InvalidCurrency(currency);
+		}
+
+		synchronized (lock) {
+			if (expectedProfit.compareTo(BigDecimal.ZERO) >= 0) {
+				amount.add(expectedProfit);
+				return;
+			}
+		}
+
+		this.withdraw(expectedProfit, currency);
+	}
+
+	public BigDecimal getAmount() {
+		return amount;
+	}
 }
