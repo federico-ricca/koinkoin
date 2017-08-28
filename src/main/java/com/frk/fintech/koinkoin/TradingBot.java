@@ -12,6 +12,7 @@ public class TradingBot {
 	private Fund fund;
 	private List<Position> positions = new ArrayList<>();
 	private List<Position> queuedPositions = new ArrayList<>();
+	private List<Position> closedPositions = new ArrayList<>();
 	private MarketDataService marketDataService;
 
 	public TradingBot(Fund fund, MarketDataService marketDataService) {
@@ -31,6 +32,7 @@ public class TradingBot {
 		if (!queuedPositions.isEmpty()) {
 			for (Position position : queuedPositions) {
 				open(position, tickers);
+				System.out.println("Actual funds: " + fund.getAmount());
 			}
 
 			queuedPositions.clear();
@@ -45,8 +47,10 @@ public class TradingBot {
 			if (position.hasPercentageProfit(tickers)) {
 				System.out.println("Closing position.");
 				position.close(profitStrategy);
+				fund.deposit(position.getAmount(), position.getCurrency());
 				fund.deposit(profitStrategy.getExpectedProfit(),
 						position.getCurrency());
+				closedPositions.add(position);
 				System.out.println("Actual funds: " + fund.getAmount());
 			} else if (position.lossAbove(tickers)) {
 				System.out.println("Loss above " + position.getMaxLoss()
@@ -54,17 +58,38 @@ public class TradingBot {
 				position.close(profitStrategy);
 				fund.deposit(profitStrategy.getExpectedProfit(),
 						position.getCurrency());
+				closedPositions.add(position);
 				System.out.println("Actual funds: " + fund.getAmount());
 			} else {
 				// hold position
 			}
 		}
+
+		List<Position> openPositions = new ArrayList<>();
+		for (Position p : positions) {
+			if (p.isOpen()) {
+				openPositions.add(p);
+			}
+		}
+		
+		positions = openPositions;
+		
+		// purge close positions
+		for (Position p : closedPositions) {
+			if (p.isSustained()) {
+				this.queue(p);
+			}
+		}
+
+		closedPositions.clear();
 	}
 
 	private List<Ticker> fetchPrices(MarketDataService marketDataService) {
 		List<Ticker> prices = new ArrayList<>();
 
 		try {
+			prices.add(marketDataService.getTicker(CurrencyPair.LTC_BTC));
+			prices.add(marketDataService.getTicker(CurrencyPair.LTC_USD));
 			prices.add(marketDataService.getTicker(CurrencyPair.BTC_USD));
 			prices.add(marketDataService.getTicker(CurrencyPair.XRP_BTC));
 			prices.add(marketDataService.getTicker(CurrencyPair.XRP_USD));
@@ -77,6 +102,7 @@ public class TradingBot {
 			prices.add(marketDataService.getTicker(CurrencyPair.XMR_BTC));
 		} catch (Exception e) {
 			System.out.println("ERROR - " + e.getMessage());
+			prices = new ArrayList<>();
 		}
 
 		return prices;

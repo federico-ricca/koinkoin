@@ -7,10 +7,11 @@ import org.knowm.xchange.currency.CurrencyPair;
 
 public class PositionBuilder {
 	private Currency currency;
-	private BigDecimal amount;
-	private BigDecimal minProfit;
-	private BigDecimal maxLoss;
+	private BigDecimal amount = BigDecimal.ZERO;
+	private BigDecimal minProfit = BigDecimal.ZERO;
+	private BigDecimal maxLoss = BigDecimal.ZERO;
 	private CurrencyPair pair;
+	private boolean bSustained = false;
 
 	public PositionBuilder withAmount(float amount) {
 		this.amount = new BigDecimal(amount);
@@ -37,10 +38,16 @@ public class PositionBuilder {
 		return this;
 	}
 
+	public PositionBuilder sustained(boolean bSustained) {
+		this.bSustained = bSustained;
+		return this;
+	}
+
 	public Position create() {
 		Position p = new Position(amount, currency, pair);
 		p.setMinProfit(minProfit);
 		p.setMaxLoss(maxLoss);
+		p.setSustained(bSustained);
 
 		return p;
 	}

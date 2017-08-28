@@ -27,7 +27,7 @@ public class Fund {
 
 		synchronized (lock) {
 			if (amount.compareTo(withdrawalAmount) >= 0) {
-				amount.subtract(withdrawalAmount);
+				amount = amount.subtract(withdrawalAmount);
 
 				return;
 			}
@@ -45,7 +45,7 @@ public class Fund {
 
 		synchronized (lock) {
 			if (expectedProfit.compareTo(BigDecimal.ZERO) >= 0) {
-				amount.add(expectedProfit);
+				amount = amount.add(expectedProfit);
 				return;
 			}
 		}
@@ -54,6 +54,8 @@ public class Fund {
 	}
 
 	public BigDecimal getAmount() {
-		return amount;
+		synchronized (lock) {
+			return amount;
+		}
 	}
 }

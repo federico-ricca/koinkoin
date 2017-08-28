@@ -20,6 +20,7 @@ public class Position {
 	private BigDecimal maxLoss;
 	private CurrencyPair pair;
 	private boolean open = false;
+	private boolean sustained = false;
 
 	public Position(BigDecimal amount, Currency currency, CurrencyPair pair) {
 		this.sourceCurrency = currency;
@@ -53,6 +54,12 @@ public class Position {
 				return t;
 			}
 		}
+
+		System.out.println("Warning: no ticker found for " + pair);
+		System.out.println("All tickers:");
+		tickers.forEach((t) -> {
+			System.out.println(t);
+		});
 		return null;
 	}
 
@@ -183,7 +190,6 @@ public class Position {
 	}
 
 	public void close(ProfitStrategy profitStrategy) {
-
 		// close position on exchange (sell)
 		open = false;
 		// update funds from Exchange
@@ -231,6 +237,14 @@ public class Position {
 
 	public static PositionBuilder builder() {
 		return new PositionBuilder();
+	}
+
+	public void setSustained(boolean sustained) {
+		this.sustained = sustained;
+	}
+
+	public boolean isSustained() {
+		return sustained;
 	}
 
 }

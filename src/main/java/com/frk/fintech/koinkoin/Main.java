@@ -18,6 +18,8 @@ import org.knowm.xchange.poloniex.PoloniexExchange;
 import org.knowm.xchange.service.marketdata.MarketDataService;
 
 public class Main {
+	public static final float MIN_PROFIT = 0.15f / 100.0f;
+
 	/***
 	 * Can I trade digital currencies other than Bitcoin?
 	 * 
@@ -49,18 +51,23 @@ public class Main {
 		TradingBot tradingBot = new TradingBot(fund, krakenMarketDataService);
 		TradingBot poloniexBot = new TradingBot(fund, poloniexMarketDataService);
 
-		tradingBot.queue(Position.builder().withAmount(100f)
+		tradingBot.queue(Position.builder().withAmount(500f)
 				.withCurrency(Currency.USD)
-				.withPair(new CurrencyPair("DASH", "USD")).withMinProfit(0.1f)
-				.withMaxLoss(0.1f).create());
+				.withPair(new CurrencyPair("BTC", "USD"))
+				.withMinProfit(MIN_PROFIT).withMaxLoss(0.1f).sustained(true)
+				.create());
 
 		poloniexBot.queue(Position.builder().withAmount(500f)
 				.withCurrency(Currency.USD)
-				.withPair(new CurrencyPair("DASH", "USD")).withMinProfit(0.1f)
-				.withMaxLoss(0.1f).create());
+				.withPair(new CurrencyPair("DASH", "USD"))
+				.withMinProfit(MIN_PROFIT).withMaxLoss(0.1f).create());
+
+		Swarm swarm = new Swarm();
+
+		swarm.add(tradingBot);
 
 		do {
-			tradingBot.tradePercentage();
+			swarm.trade();
 
 			try {
 				Thread.sleep(1500);
@@ -68,7 +75,7 @@ public class Main {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		} while (tradingBot.hasOpenPositions());
+		} while (true);
 		// raw((KrakenMarketDataServiceRaw) marketDataService);
 	}
 
