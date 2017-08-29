@@ -2,7 +2,6 @@ package com.frk.fintech.koinkoin;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.List;
 
@@ -16,6 +15,11 @@ import org.knowm.xchange.kraken.dto.marketdata.KrakenTicker;
 import org.knowm.xchange.kraken.service.KrakenMarketDataServiceRaw;
 import org.knowm.xchange.poloniex.PoloniexExchange;
 import org.knowm.xchange.service.marketdata.MarketDataService;
+
+import com.frk.fintech.koinkoin.bot.TradingBot;
+import com.frk.fintech.koinkoin.core.Fund;
+import com.frk.fintech.koinkoin.swarm.Swarm;
+import com.frk.fintech.koinkoin.trade.Position;
 
 public class Main {
 	public static final float MIN_PROFIT = 0.15f / 100.0f;
@@ -50,6 +54,12 @@ public class Main {
 
 		TradingBot tradingBot = new TradingBot(fund, krakenMarketDataService);
 		TradingBot poloniexBot = new TradingBot(fund, poloniexMarketDataService);
+
+		tradingBot.tradeWith(CurrencyPair.LTC_BTC, CurrencyPair.LTC_USD,
+				CurrencyPair.BTC_USD, CurrencyPair.XRP_BTC,
+				CurrencyPair.XRP_USD, new CurrencyPair(Currency.XMR,
+						Currency.USD), new CurrencyPair("DASH", "USD"),
+				new CurrencyPair("DASH", "BTC"), CurrencyPair.XMR_BTC);
 
 		tradingBot.queue(Position.builder().withAmount(500f)
 				.withCurrency(Currency.USD)

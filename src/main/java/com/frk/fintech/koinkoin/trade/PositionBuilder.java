@@ -1,4 +1,4 @@
-package com.frk.fintech.koinkoin;
+package com.frk.fintech.koinkoin.trade;
 
 import java.math.BigDecimal;
 

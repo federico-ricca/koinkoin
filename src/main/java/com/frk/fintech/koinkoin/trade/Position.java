@@ -1,4 +1,4 @@
-package com.frk.fintech.koinkoin;
+package com.frk.fintech.koinkoin.trade;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -8,6 +8,10 @@ import java.util.List;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.marketdata.Ticker;
+
+import com.frk.fintech.koinkoin.core.BuyingPrice;
+import com.frk.fintech.koinkoin.core.InvalidCurrency;
+import com.frk.fintech.koinkoin.core.SellingPrice;
 
 public class Position {
 
@@ -153,9 +157,6 @@ public class Position {
 					closingTicker);
 			BigDecimal endPrice = closingPrice.getPrice().multiply(
 					intermediatePrice, MathContext.DECIMAL64);
-			System.out.println(">> end price (through "
-					+ intermediateBuyingPrice.getTargetCurrency() + ") is "
-					+ endPrice + " " + sourceCurrency);
 
 			BigDecimal crossGain = endPrice.subtract(sourceAmount,
 					MathContext.DECIMAL64);

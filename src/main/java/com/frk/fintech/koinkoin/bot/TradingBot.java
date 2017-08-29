@@ -1,12 +1,17 @@
-package com.frk.fintech.koinkoin;
+package com.frk.fintech.koinkoin.bot;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.marketdata.Ticker;
 import org.knowm.xchange.service.marketdata.MarketDataService;
+
+import com.frk.fintech.koinkoin.core.Fund;
+import com.frk.fintech.koinkoin.core.InsufficientFundsException;
+import com.frk.fintech.koinkoin.core.InvalidCurrency;
+import com.frk.fintech.koinkoin.trade.Position;
+import com.frk.fintech.koinkoin.trade.ProfitStrategy;
 
 public class TradingBot {
 	private Fund fund;
@@ -14,6 +19,7 @@ public class TradingBot {
 	private List<Position> queuedPositions = new ArrayList<>();
 	private List<Position> closedPositions = new ArrayList<>();
 	private MarketDataService marketDataService;
+	private List<CurrencyPair> tradingCurrencyPairs = new ArrayList<CurrencyPair>();
 
 	public TradingBot(Fund fund, MarketDataService marketDataService) {
 		this.fund = fund;
@@ -71,9 +77,9 @@ public class TradingBot {
 				openPositions.add(p);
 			}
 		}
-		
+
 		positions = openPositions;
-		
+
 		// purge close positions
 		for (Position p : closedPositions) {
 			if (p.isSustained()) {
@@ -88,18 +94,9 @@ public class TradingBot {
 		List<Ticker> prices = new ArrayList<>();
 
 		try {
-			prices.add(marketDataService.getTicker(CurrencyPair.LTC_BTC));
-			prices.add(marketDataService.getTicker(CurrencyPair.LTC_USD));
-			prices.add(marketDataService.getTicker(CurrencyPair.BTC_USD));
-			prices.add(marketDataService.getTicker(CurrencyPair.XRP_BTC));
-			prices.add(marketDataService.getTicker(CurrencyPair.XRP_USD));
-			prices.add(marketDataService.getTicker(new CurrencyPair(
-					Currency.XMR, Currency.USD)));
-			prices.add(marketDataService.getTicker(new CurrencyPair("DASH",
-					"USD")));
-			prices.add(marketDataService.getTicker(new CurrencyPair("DASH",
-					"BTC")));
-			prices.add(marketDataService.getTicker(CurrencyPair.XMR_BTC));
+			for (CurrencyPair p : tradingCurrencyPairs) {
+				prices.add(marketDataService.getTicker(p));
+			}
 		} catch (Exception e) {
 			System.out.println("ERROR - " + e.getMessage());
 			prices = new ArrayList<>();
@@ -137,5 +134,14 @@ public class TradingBot {
 
 	public void queue(Position position) {
 		queuedPositions.add(position);
+	}
+
+	public void tradeWith(CurrencyPair... pairs) {
+		tradingCurrencyPairs = new ArrayList<CurrencyPair>();
+
+		for (CurrencyPair p : pairs) {
+			tradingCurrencyPairs.add(p);
+		}
+
 	}
 }

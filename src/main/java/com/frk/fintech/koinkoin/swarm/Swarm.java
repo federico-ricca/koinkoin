@@ -1,7 +1,11 @@
-package com.frk.fintech.koinkoin;
+package com.frk.fintech.koinkoin.swarm;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import com.frk.fintech.koinkoin.bot.TradingBot;
+import com.frk.fintech.koinkoin.core.InsufficientFundsException;
+import com.frk.fintech.koinkoin.core.InvalidCurrency;
 
 public class Swarm {
 	private List<TradingBot> bots = new ArrayList<>();
