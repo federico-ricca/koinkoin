@@ -12,6 +12,7 @@ import com.frk.fintech.koinkoin.core.InsufficientFundsException;
 import com.frk.fintech.koinkoin.core.InvalidCurrency;
 import com.frk.fintech.koinkoin.trade.Position;
 import com.frk.fintech.koinkoin.trade.ProfitStrategy;
+import com.frk.fintech.koinkoin.trade.TradingStrategy;
 
 public class TradingBot {
 	private Fund fund;
@@ -20,15 +21,16 @@ public class TradingBot {
 	private List<Position> closedPositions = new ArrayList<>();
 	private MarketDataService marketDataService;
 	private List<CurrencyPair> tradingCurrencyPairs = new ArrayList<CurrencyPair>();
+	private TradingStrategy strategy;
 
-	public TradingBot(Fund fund, MarketDataService marketDataService) {
+	public TradingBot(Fund fund, MarketDataService marketDataService,
+			TradingStrategy strategy) {
 		this.fund = fund;
 		this.marketDataService = marketDataService;
+		this.strategy = strategy;
 	}
 
-	public void tradePercentage() throws InvalidCurrency,
-			InsufficientFundsException {
-
+	public void trade() throws InvalidCurrency, InsufficientFundsException {
 		List<Ticker> tickers = fetchPrices(marketDataService);
 
 		if (tickers.isEmpty()) {
@@ -47,27 +49,10 @@ public class TradingBot {
 		for (Position position : positions) {
 			showPosition(position, tickers);
 
-			ProfitStrategy profitStrategy = position
-					.calculateProfitStrategy(tickers);
+			boolean closePosition = strategy.trade(fund, position, tickers);
 
-			if (position.hasPercentageProfit(tickers)) {
-				System.out.println("Closing position.");
-				position.close(profitStrategy);
-				fund.deposit(position.getAmount(), position.getCurrency());
-				fund.deposit(profitStrategy.getExpectedProfit(),
-						position.getCurrency());
+			if (closePosition) {
 				closedPositions.add(position);
-				System.out.println("Actual funds: " + fund.getAmount());
-			} else if (position.lossAbove(tickers)) {
-				System.out.println("Loss above " + position.getMaxLoss()
-						+ " %, closing at " + position.currentValue(tickers));
-				position.close(profitStrategy);
-				fund.deposit(profitStrategy.getExpectedProfit(),
-						position.getCurrency());
-				closedPositions.add(position);
-				System.out.println("Actual funds: " + fund.getAmount());
-			} else {
-				// hold position
 			}
 		}
 

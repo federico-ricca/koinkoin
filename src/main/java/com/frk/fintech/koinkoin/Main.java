@@ -19,6 +19,7 @@ import org.knowm.xchange.service.marketdata.MarketDataService;
 import com.frk.fintech.koinkoin.bot.TradingBot;
 import com.frk.fintech.koinkoin.core.Fund;
 import com.frk.fintech.koinkoin.swarm.Swarm;
+import com.frk.fintech.koinkoin.trade.PercentageVariationTradingStrategy;
 import com.frk.fintech.koinkoin.trade.Position;
 
 public class Main {
@@ -52,8 +53,11 @@ public class Main {
 
 		Fund fund = new Fund(new BigDecimal(800), Currency.USD);
 
-		TradingBot tradingBot = new TradingBot(fund, krakenMarketDataService);
-		TradingBot poloniexBot = new TradingBot(fund, poloniexMarketDataService);
+		TradingBot tradingBot = new TradingBot(fund, krakenMarketDataService,
+				new PercentageVariationTradingStrategy());
+		TradingBot poloniexBot = new TradingBot(fund,
+				poloniexMarketDataService,
+				new PercentageVariationTradingStrategy());
 
 		tradingBot.tradeWith(CurrencyPair.LTC_BTC, CurrencyPair.LTC_USD,
 				CurrencyPair.BTC_USD, CurrencyPair.XRP_BTC,

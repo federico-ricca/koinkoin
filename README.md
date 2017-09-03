@@ -1,1 +1,3 @@
-# KoinKoin - an experimental bot for cryptocurrency hedge trading
+# KoinKoin - a cryptocurrency trading infrastructure
+
+WIP

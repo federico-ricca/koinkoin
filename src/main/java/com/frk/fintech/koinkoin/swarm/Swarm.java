@@ -17,7 +17,7 @@ public class Swarm {
 	public void trade() {
 		for (TradingBot bot : bots) {
 			try {
-				bot.tradePercentage();
+				bot.trade();
 			} catch (InvalidCurrency | InsufficientFundsException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
