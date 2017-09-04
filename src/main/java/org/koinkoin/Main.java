@@ -91,6 +91,17 @@ public class Main {
 
 		swarm.add(tradingBot);
 
+		/**
+		 * do something like
+		 * MarketDefinition marketDefinition = MarketDefinition.builder().samePairsAs(bot);
+		 * MarketLog marketLog = new MarketLog();
+		 * do {
+		 * MarketData marketData = new MarketData(marketDefinition); 
+		 *   swarm.trade(marketData);
+		 *   marketLog.publish(marketData);
+		 *   sleep(1000)
+		 * } while (true)
+		 */
 		do {
 			swarm.trade();
 

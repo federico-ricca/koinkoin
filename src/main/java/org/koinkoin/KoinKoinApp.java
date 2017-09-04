@@ -19,9 +19,17 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 @EnableAutoConfiguration
-@ComponentScan("xyz.grafema")
+@ComponentScan("org.koinkoin")
 public class KoinKoinApp extends SpringApplication {
+
 	public static void main(String[] args) {
 		SpringApplication.run(KoinKoinApp.class, args);
+
+		try {
+			new Main().run();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

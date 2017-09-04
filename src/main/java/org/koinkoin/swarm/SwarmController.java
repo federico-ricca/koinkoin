@@ -15,6 +15,8 @@ package org.koinkoin.swarm;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -28,6 +30,13 @@ public class SwarmController {
 			@RequestBody SwarmRequestBody body) {
 		SwarmResponse swarmResponse = null;
 		return new ResponseEntity<SwarmResponse>(swarmResponse, HttpStatus.OK);
+	}
+
+	@MessageMapping("/hello")
+	@SendTo("/topic/greetings")
+	public Greeting greeting(HelloMessage message) throws Exception {
+		Thread.sleep(1000); // simulated delay
+		return new Greeting("Hello, " + message.getName() + "!");
 	}
 
 	public void startSwarm() {

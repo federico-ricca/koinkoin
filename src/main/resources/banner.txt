@@ -7,4 +7,3 @@
         \/                 \/         \/                 \/ 
 A cryptocurrency trading infrastructure
 
-WIP
