@@ -5,8 +5,8 @@
     |    |  \ (  <_> )|  ||   |  \|    |  \ (  <_> )|  ||   |  \
     |____|__ \ \____/ |__||___|  /|____|__ \ \____/ |__||___|  /
         \/                 \/         \/                 \/
-</pre>
  
-A cryptocurrency trading infrastructure
+        A cryptocurrency trading infrastructure
+</pre>
 
 WIP
