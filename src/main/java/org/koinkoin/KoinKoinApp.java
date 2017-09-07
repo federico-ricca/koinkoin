@@ -26,7 +26,7 @@ public class KoinKoinApp extends SpringApplication {
 		SpringApplication.run(KoinKoinApp.class, args);
 
 		try {
-			new Main().run();
+		//	new Main().run();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
