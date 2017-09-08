@@ -10,8 +10,28 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  ***************************************************************************/
-package org.koinkoin.swarm;
+package org.koinkoin.ui;
 
-public class SwarmResponse {
+import org.koinkoin.swarm.Swarm;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.stereotype.Controller;
+
+@Controller
+class DashboardController {
+	private Swarm swarm;
+
+	@Autowired
+	public DashboardController(Swarm swarm) {
+		this.swarm = swarm;
+	}
+
+	@MessageMapping("/ticker")
+	@SendTo("/topic/ticker")
+	public TickerResponse fetchTicker(TickerRequest tickerRequest) throws Exception {
+		return new TickerResponse(
+				swarm.getPrice(tickerRequest.getExchangeId(), tickerRequest.getBase(), tickerRequest.getCounter()));
+	}
 
 }

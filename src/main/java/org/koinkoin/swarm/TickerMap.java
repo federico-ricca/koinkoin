@@ -12,29 +12,27 @@
  ***************************************************************************/
 package org.koinkoin.swarm;
 
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-@RestController
-public class SwarmController {
+import org.knowm.xchange.currency.CurrencyPair;
+import org.knowm.xchange.dto.marketdata.Ticker;
 
-	@RequestMapping(value = "/v1/swarm", method = RequestMethod.POST)
-	public HttpEntity<SwarmResponse> createSwarm(
-			@RequestBody SwarmRequestBody body) {
-		SwarmResponse swarmResponse = null;
-		return new ResponseEntity<SwarmResponse>(swarmResponse, HttpStatus.OK);
+public class TickerMap {
+	private Map<String, Ticker> allTickers = new HashMap<>();
+
+	public void addAll(List<Ticker> tickers) {
+		for (Ticker t : tickers) {
+			String pairName = t.getCurrencyPair().toString();
+
+			allTickers.put(pairName, t);
+		}
 	}
 
-	public void startSwarm() {
+	public Ticker reduce(String base, String counter) {
+		String pairName = new CurrencyPair(base, counter).toString();
 
-	}
-
-	public void stopSwarm() {
-
+		return allTickers.get(pairName);
 	}
 }

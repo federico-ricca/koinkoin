@@ -1,3 +1,12 @@
-# KoinKoin - a cryptocurrency trading infrastructure
+<pre>
+     ____  __.        .__          ____  __.        .__         
+    |    |/ _|  ____  |__|  ____  |    |/ _|  ____  |__|  ____  
+    |      <   /  _ \ |  | /    \ |      <   /  _ \ |  | /    \ 
+    |    |  \ (  <_> )|  ||   |  \|    |  \ (  <_> )|  ||   |  \
+    |____|__ \ \____/ |__||___|  /|____|__ \ \____/ |__||___|  /
+        \/                 \/         \/                 \/
+ 
+        A cryptocurrency trading infrastructure
+</pre>
 
 WIP

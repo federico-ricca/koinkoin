@@ -10,20 +10,30 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  ***************************************************************************/
-package org.koinkoin;
+package org.koinkoin.trade;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.ComponentScan;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-@SpringBootApplication
-@EnableAutoConfiguration
-@ComponentScan("org.koinkoin")
-public class KoinKoinApp extends SpringApplication {
+import javax.annotation.PostConstruct;
 
-	public static void main(String[] args) {
-		SpringApplication.run(KoinKoinApp.class, args);
+import org.koinkoin.swarm.Swarm;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+public class InitService {
+	private Swarm swarm;
+
+	@Autowired
+	public InitService(Swarm swarm) {
+		this.swarm = swarm;
 	}
 
+	@PostConstruct
+	public void initInfra() {
+		ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();
+
+		singleThreadExecutor.execute(swarm);
+	}
 }

@@ -10,20 +10,26 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  ***************************************************************************/
-package org.koinkoin;
+package org.koinkoin.integration;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.ComponentScan;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-@SpringBootApplication
-@EnableAutoConfiguration
-@ComponentScan("org.koinkoin")
-public class KoinKoinApp extends SpringApplication {
+import org.knowm.xchange.service.marketdata.MarketDataService;
 
-	public static void main(String[] args) {
-		SpringApplication.run(KoinKoinApp.class, args);
+public class MarketPort {
+	private List<ExchangeDescriptor> exchanges = new ArrayList<ExchangeDescriptor>();
+
+	public ExchangeDescriptor addExchange(String exchangeId, MarketDataService marketDataService) {
+		ExchangeDescriptor exchangeDescriptor = new ExchangeDescriptor(exchangeId, marketDataService);
+
+		exchanges.add(exchangeDescriptor);
+
+		return exchangeDescriptor;
 	}
 
+	public List<ExchangeDescriptor> getExchanges() {
+		return Collections.unmodifiableList(exchanges);
+	}
 }

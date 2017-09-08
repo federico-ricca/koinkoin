@@ -22,7 +22,6 @@ import org.koinkoin.core.Fund;
 import org.koinkoin.core.InsufficientFundsException;
 import org.koinkoin.core.InvalidCurrency;
 import org.koinkoin.trade.Position;
-import org.koinkoin.trade.ProfitStrategy;
 import org.koinkoin.trade.TradingStrategy;
 
 public class TradingBot {
@@ -41,10 +40,8 @@ public class TradingBot {
 		this.strategy = strategy;
 	}
 
-	public void trade() throws InvalidCurrency, InsufficientFundsException {
-		List<Ticker> tickers = fetchPrices(marketDataService);
-
-		if (tickers.isEmpty()) {
+	public void trade(List<Ticker> tickers) throws InvalidCurrency, InsufficientFundsException {
+		if (tickers == null || tickers.isEmpty()) {
 			return;
 		}
 

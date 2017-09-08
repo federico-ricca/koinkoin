@@ -10,20 +10,23 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  ***************************************************************************/
-package org.koinkoin;
+package org.koinkoin.ui;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.ComponentScan;
+import org.koinkoin.core.PriceData;
 
-@SpringBootApplication
-@EnableAutoConfiguration
-@ComponentScan("org.koinkoin")
-public class KoinKoinApp extends SpringApplication {
+public class TickerResponse {
+	private PriceData priceData;
 
-	public static void main(String[] args) {
-		SpringApplication.run(KoinKoinApp.class, args);
+	public TickerResponse(PriceData priceData) {
+		setPriceData(priceData);
+	}
+
+	public PriceData getPriceData() {
+		return priceData;
+	}
+
+	public void setPriceData(PriceData priceData) {
+		this.priceData = priceData;
 	}
 
 }
