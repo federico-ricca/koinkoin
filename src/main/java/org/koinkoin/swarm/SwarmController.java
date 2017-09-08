@@ -12,19 +12,11 @@
  ***************************************************************************/
 package org.koinkoin.swarm;
 
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class SwarmController {
-
+/*
 	@RequestMapping(value = "/v1/swarm", method = RequestMethod.POST)
 	public HttpEntity<SwarmResponse> createSwarm(
 			@RequestBody SwarmRequestBody body) {
@@ -45,5 +37,5 @@ public class SwarmController {
 
 	public void stopSwarm() {
 
-	}
+	}*/
 }

@@ -22,7 +22,6 @@ import org.koinkoin.core.Fund;
 import org.koinkoin.core.InsufficientFundsException;
 import org.koinkoin.core.InvalidCurrency;
 import org.koinkoin.trade.Position;
-import org.koinkoin.trade.ProfitStrategy;
 import org.koinkoin.trade.TradingStrategy;
 
 public class TradingBot {

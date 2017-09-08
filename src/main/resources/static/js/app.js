@@ -20,8 +20,8 @@ function connect() {
 		stompClient.subscribe('/topic/greetings', function(greeting) {
 			showGreeting(JSON.parse(greeting.body).content);
 		});
-		stompClient.subscribe('/topic/ticker', function(greeting) {
-			showTicker(JSON.parse(greeting.body).content);
+		stompClient.subscribe('/topic/ticker', function(tickerInfo) {
+			showTicker(JSON.parse(tickerInfo.body).priceData);
 		});
 		fetchTicker();
 	});
@@ -43,10 +43,10 @@ function sendName() {
 }
 
 function fetchTicker() {
-	let
-	shouldCancel = false;
+	let shouldCancel = false;
 
 	var msg = {
+		'exchangeId' : 'kraken',
 		'base' : 'BTC',
 		'counter' : 'EUR'
 	}
@@ -63,8 +63,20 @@ function showGreeting(message) {
 	$("#greetings").append("<tr><td>" + message + "</td></tr>");
 }
 
-function showTicker(message) {
-	$("#greetings").append("<tr><td>" + message + "</td></tr>");
+function showTicker(ticker) {
+	let margin = ticker.askPrice / 10;
+	let maxValue = ticker.high;
+	let minValue = ticker.low;
+
+	yAxis.domain([ minValue, maxValue ]);
+	svg.selectAll(".axis--y").call(d3.axisLeft(yAxis));
+
+	// Push a new data point onto the back.
+	askPriceData.push(ticker.askPrice);
+	bidPriceData.push(ticker.bidPrice);
+	askPriceData.shift();
+	bidPriceData.shift();
+	// svg.select(".path").attr("d", line).attr("transform", null);
 }
 
 $(function() {
@@ -82,4 +94,6 @@ $(function() {
 	});
 
 	connect();
+
+	stompClient.debug = null
 });
