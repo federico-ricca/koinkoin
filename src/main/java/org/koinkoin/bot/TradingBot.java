@@ -40,10 +40,8 @@ public class TradingBot {
 		this.strategy = strategy;
 	}
 
-	public void trade() throws InvalidCurrency, InsufficientFundsException {
-		List<Ticker> tickers = fetchPrices(marketDataService);
-
-		if (tickers.isEmpty()) {
+	public void trade(List<Ticker> tickers) throws InvalidCurrency, InsufficientFundsException {
+		if (tickers == null || tickers.isEmpty()) {
 			return;
 		}
 

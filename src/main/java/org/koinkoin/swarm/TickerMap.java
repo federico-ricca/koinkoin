@@ -12,6 +12,27 @@
  ***************************************************************************/
 package org.koinkoin.swarm;
 
-public class SwarmResponse {
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import org.knowm.xchange.currency.CurrencyPair;
+import org.knowm.xchange.dto.marketdata.Ticker;
+
+public class TickerMap {
+	private Map<String, Ticker> allTickers = new HashMap<>();
+
+	public void addAll(List<Ticker> tickers) {
+		for (Ticker t : tickers) {
+			String pairName = t.getCurrencyPair().toString();
+
+			allTickers.put(pairName, t);
+		}
+	}
+
+	public Ticker reduce(String base, String counter) {
+		String pairName = new CurrencyPair(base, counter).toString();
+
+		return allTickers.get(pairName);
+	}
 }

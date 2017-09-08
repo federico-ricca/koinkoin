@@ -27,8 +27,7 @@ public class PercentageVariationTradingStrategy implements TradingStrategy {
 	@Override
 	public boolean trade(Fund fund, Position position, List<Ticker> tickers)
 			throws InvalidCurrency, InsufficientFundsException {
-		ProfitStrategy profitStrategy = position
-				.calculateProfitStrategy(tickers);
+		ProfitStrategy profitStrategy = position.calculateProfitStrategy(tickers);
 
 		boolean closePosition = false;
 
@@ -36,16 +35,14 @@ public class PercentageVariationTradingStrategy implements TradingStrategy {
 			System.out.println("Closing position.");
 			position.close(profitStrategy);
 			fund.deposit(position.getAmount(), position.getCurrency());
-			fund.deposit(profitStrategy.getExpectedProfit(),
-					position.getCurrency());
+			fund.deposit(profitStrategy.getExpectedProfit(), position.getCurrency());
 			closePosition = true;
 			System.out.println("Actual funds: " + fund.getAmount());
 		} else if (position.lossAbove(tickers)) {
-			System.out.println("Loss above " + position.getMaxLoss()
-					+ " %, closing at " + position.currentValue(tickers));
+			System.out.println(
+					"Loss above " + position.getMaxLoss() + " %, closing at " + position.currentValue(tickers));
 			position.close(profitStrategy);
-			fund.deposit(profitStrategy.getExpectedProfit(),
-					position.getCurrency());
+			fund.deposit(profitStrategy.getExpectedProfit(), position.getCurrency());
 			closePosition = true;
 			System.out.println("Actual funds: " + fund.getAmount());
 		} else {
