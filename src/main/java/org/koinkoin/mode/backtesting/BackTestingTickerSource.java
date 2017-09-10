@@ -10,7 +10,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  ***************************************************************************/
-package org.koinkoin.swarm;
+package org.koinkoin.mode.backtesting;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -23,7 +23,7 @@ import java.util.List;
 
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.marketdata.Ticker;
-import org.koinkoin.integration.TickerSource;
+import org.koinkoin.data.TickerSource;
 
 public class BackTestingTickerSource implements TickerSource {
 	private BufferedReader reader;

@@ -10,7 +10,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  ***************************************************************************/
-package org.koinkoin.integration;
+package org.koinkoin.mode.real;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +18,9 @@ import java.util.List;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.marketdata.Ticker;
 import org.knowm.xchange.service.marketdata.MarketDataService;
+import org.koinkoin.data.TickerSource;
+import org.koinkoin.integration.ExchangeDescriptor;
+import org.koinkoin.integration.TickerFactory;
 
 public class RealTickerSource implements TickerSource {
 	private ExchangeDescriptor descriptor;

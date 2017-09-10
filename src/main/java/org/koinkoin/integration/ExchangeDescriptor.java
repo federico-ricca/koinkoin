@@ -17,6 +17,7 @@ import java.util.Set;
 
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.service.marketdata.MarketDataService;
+import org.koinkoin.data.MarketDataLog;
 
 public class ExchangeDescriptor {
 

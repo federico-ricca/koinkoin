@@ -10,7 +10,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  ***************************************************************************/
-package org.koinkoin.integration;
+package org.koinkoin.data;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -72,7 +72,7 @@ public class MarketDataLog {
 
 				Date d = GregorianCalendar.getInstance().getTime();
 
-				streamInfo.stream.println(d + ", " + t.getBid() + ", " + t.getAsk());
+				streamInfo.stream.println(d + ", " + t.getBid() + ", " + t.getAsk() + ", " + t.getHigh() + ", " + t.getLow());
 				streamInfo.records++;
 
 				if (streamInfo.records % streamInfo.flushCycle == 0) {

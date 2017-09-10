@@ -10,39 +10,14 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  ***************************************************************************/
-package org.koinkoin.swarm;
+package org.koinkoin.mode;
 
-import java.io.IOException;
-
+import org.koinkoin.data.TickerSource;
 import org.koinkoin.integration.ExchangeDescriptor;
-import org.koinkoin.integration.TickerSource;
 
-public class BackTestingModeStrategy implements TradingModeStrategy {
-	private TickerSource backTestingTickerSource;
+public interface TradingModeStrategy {
 
-	public BackTestingModeStrategy() {
-		try {
-			backTestingTickerSource = new BackTestingTickerSource("kraken-XBT_EUR-2017-09-10-15-50-56.csv", "BTC",
-					"EUR");
-		} catch (IOException e) {
-			e.printStackTrace();
-			backTestingTickerSource = new NullTickerSource();
-		}
-	}
+	void interval();
 
-	@Override
-	public void interval() {
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
-	@Override
-	public TickerSource newTickerSource(ExchangeDescriptor desc) {
-		return backTestingTickerSource;
-	}
-
+	TickerSource newTickerSource(ExchangeDescriptor desc);
 }
