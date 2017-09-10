@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 class DashboardController {
@@ -34,4 +36,18 @@ class DashboardController {
 				swarm.getPrice(tickerRequest.getExchangeId(), tickerRequest.getBase(), tickerRequest.getCounter()));
 	}
 
+	@RequestMapping("/market-data/log/{state}")
+	public MarketDataLogStatus recordMarketDataLog(@PathVariable("state") String state) {
+		MarketDataLogStatus status = new MarketDataLogStatus();
+
+		if (state.toLowerCase().equals("open")) {
+			status.setOpen(true);
+			swarm.openMarketDataLog();
+		} else if (state.toLowerCase().equals("close")) {
+			status.setOpen(false);
+			swarm.closeMarketDataLog();
+		}
+
+		return status;
+	}
 }

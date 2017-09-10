@@ -13,11 +13,13 @@
 package org.koinkoin.integration;
 
 import java.util.List;
+import java.util.Set;
 
+import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.marketdata.Ticker;
 
-public interface TickerSource {
-	boolean hasData();
+public interface TickerFactory {
 
-	List<Ticker> tickers() throws Exception;
+	List<Ticker> getTickers(Set<CurrencyPair> currencyPairs);
+
 }

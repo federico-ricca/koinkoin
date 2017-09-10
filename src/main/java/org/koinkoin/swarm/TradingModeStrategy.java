@@ -10,14 +10,14 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  ***************************************************************************/
-package org.koinkoin.integration;
+package org.koinkoin.swarm;
 
-import java.util.List;
+import org.koinkoin.integration.ExchangeDescriptor;
+import org.koinkoin.integration.TickerSource;
 
-import org.knowm.xchange.dto.marketdata.Ticker;
+public interface TradingModeStrategy {
 
-public interface TickerSource {
-	boolean hasData();
+	void interval();
 
-	List<Ticker> tickers() throws Exception;
+	TickerSource newTickerSource(ExchangeDescriptor desc);
 }

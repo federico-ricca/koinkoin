@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.knowm.xchange.dto.marketdata.Ticker;
 import org.koinkoin.bot.TradingBot;
@@ -35,11 +36,16 @@ public class Swarm implements Runnable {
 	private Map<String, List<TradingBot>> botsPerExchange = new HashMap<>();
 	private SwarmLog swarmLog;
 	private MarketPort marketPort;
+	private AtomicBoolean running;
+	private AtomicBoolean marketDataLogOpen;
+	private TradingModeStrategy tradingModeStrategy;
 
 	@Autowired
 	public Swarm(MarketPort marketPort) {
 		swarmLog = new SwarmLog();
 		this.marketPort = marketPort;
+		running = new AtomicBoolean(false);
+		marketDataLogOpen = new AtomicBoolean(false);
 	}
 
 	public void add(String exchangeId, TradingBot tradingBot) {
@@ -79,13 +85,21 @@ public class Swarm implements Runnable {
 		return priceData;
 	}
 
+	public void stop() {
+		running.set(false);
+	}
+
 	@Override
 	public void run() {
-		while (true) {
-			List<ExchangeDescriptor> exchanges = marketPort.getExchanges();
+		List<ExchangeDescriptor> exchanges = marketPort.getExchanges();
 
+		running.set(true);
+
+		tradingModeStrategy = new BackTestingModeStrategy();
+
+		while (running.get()) {
 			for (ExchangeDescriptor desc : exchanges) {
-				TickerSource source = new TickerSource(desc);
+				TickerSource source = tradingModeStrategy.newTickerSource(desc);
 
 				if (source.hasData()) {
 					try {
@@ -94,17 +108,36 @@ public class Swarm implements Runnable {
 						trade(desc.getExchangeId(), tickers);
 
 						swarmLog.append(desc.getExchangeId(), tickers);
+
+						// disable on backtesting
+						if (marketDataLogOpen.get()) {
+							desc.getMarketDataLog().add(tickers);
+						}
 					} catch (Exception e) {
+						e.printStackTrace();
 						System.out.println("ERROR - " + e.getMessage());
 					}
 				}
 			}
 
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			tradingModeStrategy.interval();
+		}
+
+		closeMarketDataLog();
+	}
+
+	public void openMarketDataLog() {
+		marketDataLogOpen.set(true);
+	}
+
+	public void closeMarketDataLog() {
+		if (marketDataLogOpen.get()) {
+			marketDataLogOpen.set(false);
+
+			List<ExchangeDescriptor> exchanges = marketPort.getExchanges();
+
+			for (ExchangeDescriptor desc : exchanges) {
+				desc.getMarketDataLog().close();
 			}
 		}
 	}

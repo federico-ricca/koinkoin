@@ -10,14 +10,23 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  ***************************************************************************/
-package org.koinkoin.integration;
+package org.koinkoin.swarm;
 
 import java.util.List;
 
 import org.knowm.xchange.dto.marketdata.Ticker;
+import org.koinkoin.integration.TickerSource;
 
-public interface TickerSource {
-	boolean hasData();
+public class NullTickerSource implements TickerSource {
 
-	List<Ticker> tickers() throws Exception;
+	@Override
+	public boolean hasData() {
+		return false;
+	}
+
+	@Override
+	public List<Ticker> tickers() throws Exception {
+		return null;
+	}
+
 }

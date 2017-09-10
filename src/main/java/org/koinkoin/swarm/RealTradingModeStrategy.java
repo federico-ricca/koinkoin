@@ -10,14 +10,28 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  ***************************************************************************/
-package org.koinkoin.integration;
+package org.koinkoin.swarm;
 
-import java.util.List;
+import org.koinkoin.integration.ExchangeDescriptor;
+import org.koinkoin.integration.RealTickerSource;
+import org.koinkoin.integration.TickerSource;
 
-import org.knowm.xchange.dto.marketdata.Ticker;
+public class RealTradingModeStrategy implements TradingModeStrategy {
 
-public interface TickerSource {
-	boolean hasData();
+	@Override
+	public void interval() {
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 
-	List<Ticker> tickers() throws Exception;
+	@Override
+	public TickerSource newTickerSource(ExchangeDescriptor desc) {
+		// TODO Auto-generated method stub
+		return new RealTickerSource(desc);
+	}
+
 }

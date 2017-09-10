@@ -10,14 +10,16 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  ***************************************************************************/
-package org.koinkoin.integration;
+package org.koinkoin.ui;
 
-import java.util.List;
+public class MarketDataLogStatus {
+	private boolean open;
 
-import org.knowm.xchange.dto.marketdata.Ticker;
+	public boolean isOpen() {
+		return open;
+	}
 
-public interface TickerSource {
-	boolean hasData();
-
-	List<Ticker> tickers() throws Exception;
+	public void setOpen(boolean open) {
+		this.open = open;
+	}
 }
