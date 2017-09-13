@@ -12,14 +12,19 @@
  ***************************************************************************/
 package org.koinkoin.swarm;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.knowm.xchange.currency.Currency;
+import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.marketdata.Ticker;
 import org.koinkoin.bot.TradingBot;
+import org.koinkoin.core.Fund;
 import org.koinkoin.core.InsufficientFundsException;
 import org.koinkoin.core.InvalidCurrency;
 import org.koinkoin.core.PriceData;
@@ -27,7 +32,9 @@ import org.koinkoin.data.TickerSource;
 import org.koinkoin.integration.ExchangeDescriptor;
 import org.koinkoin.integration.MarketPort;
 import org.koinkoin.mode.TradingModeStrategy;
-import org.koinkoin.mode.backtesting.BackTestingModeStrategy;
+import org.koinkoin.mode.real.RealTradingModeStrategy;
+import org.koinkoin.trade.Position;
+import org.koinkoin.trade.TradingOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -78,7 +85,6 @@ public class Swarm implements Runnable {
 
 	public PriceData getPrice(String exchangeId, String base, String counter) {
 		Ticker ticker = swarmLog.peek(exchangeId, base, counter);
-		System.out.println(ticker);
 
 		PriceData priceData = new PriceData(ticker.getAsk(), ticker.getBid());
 		priceData.setHigh(ticker.getHigh());
@@ -93,12 +99,25 @@ public class Swarm implements Runnable {
 
 	@Override
 	public void run() {
-		List<ExchangeDescriptor> exchanges = marketPort.getExchanges();
+		Collection<ExchangeDescriptor> exchanges = marketPort.getExchanges();
 
 		running.set(true);
 
-		tradingModeStrategy = new BackTestingModeStrategy();
+		Fund fund = new Fund(new BigDecimal(500), Currency.EUR);
 
+		tradingModeStrategy = new RealTradingModeStrategy();
+		//tradingModeStrategy = new BackTestingModeStrategy();
+		
+		TradingBot tradingBot = new TradingBot(fund, marketPort.getExchange("kraken"),
+				new TradingOperation());
+		tradingBot.queue(Position.builder().withAmount(100f)
+				.withCurrency(Currency.EUR)
+				.withPair(new CurrencyPair("XBT", "EUR"))
+				.withMinProfit(0.5f / 100.0f).withMaxLoss(0.3f / 100.0f).sustained(true)
+				.create());
+
+		this.add("kraken", tradingBot);
+		
 		while (running.get()) {
 			for (ExchangeDescriptor desc : exchanges) {
 				TickerSource source = tradingModeStrategy.newTickerSource(desc);
@@ -136,7 +155,7 @@ public class Swarm implements Runnable {
 		if (marketDataLogOpen.get()) {
 			marketDataLogOpen.set(false);
 
-			List<ExchangeDescriptor> exchanges = marketPort.getExchanges();
+			Collection<ExchangeDescriptor> exchanges = marketPort.getExchanges();
 
 			for (ExchangeDescriptor desc : exchanges) {
 				desc.getMarketDataLog().close();

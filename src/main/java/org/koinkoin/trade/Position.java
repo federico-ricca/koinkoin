@@ -39,8 +39,7 @@ public class Position {
 
 	public Position(BigDecimal amount, Currency currency, CurrencyPair pair) {
 		this.sourceCurrency = currency;
-		this.targetCurrency = currency.equals(pair.base) ? pair.counter
-				: pair.base;
+		this.targetCurrency = currency.equals(pair.base) ? pair.counter : pair.base;
 		this.sourceAmount = amount;
 		this.pair = pair;
 	}
@@ -49,18 +48,16 @@ public class Position {
 		open = true;
 
 		// open position on exchage (buy)
-		System.out.println("Opening position on " + sourceCurrency + " "
-				+ sourceAmount + " amount.");
+		System.out.println("Opening position on " + sourceCurrency + " " + sourceAmount + " amount.");
 
 		Ticker openingTicker = matchTicker(pair, tickers);
 
 		buyingPrice = new BuyingPrice(sourceCurrency, openingTicker);
 
-		targetAmount = buyingPrice.getPrice().multiply(sourceAmount,
-				MathContext.DECIMAL64);
+		targetAmount = buyingPrice.getPrice().multiply(sourceAmount, MathContext.DECIMAL64);
 
-		System.out.println("Buying " + targetAmount + " " + targetCurrency
-				+ " at " + openingTicker.getAsk() + " " + sourceCurrency);
+		System.out.println("Buying " + targetAmount + " " + targetCurrency + " at " + openingTicker.getAsk() + " "
+				+ sourceCurrency);
 	}
 
 	private Ticker matchTicker(CurrencyPair pair, List<Ticker> tickers) {
@@ -78,13 +75,11 @@ public class Position {
 		return null;
 	}
 
-	private List<Ticker> matchTickers(Currency includeCurrency,
-			Currency excludeCurrency, List<Ticker> tickers) {
+	private List<Ticker> matchTickers(Currency includeCurrency, Currency excludeCurrency, List<Ticker> tickers) {
 		List<Ticker> matching = new ArrayList<>();
 
 		for (Ticker t : tickers) {
-			if (t.getCurrencyPair().contains(includeCurrency)
-					&& !t.getCurrencyPair().contains(excludeCurrency)) {
+			if (t.getCurrencyPair().contains(includeCurrency) && !t.getCurrencyPair().contains(excludeCurrency)) {
 				matching.add(t);
 			}
 		}
@@ -92,46 +87,48 @@ public class Position {
 		return matching;
 	}
 
-	public ProfitStrategy calculateProfitStrategy(List<Ticker> tickers)
-			throws InvalidCurrency {
-		ProfitStrategy profitStrategy = new ProfitStrategy();
+	public ProfitStrategy calculateProfitStrategy(List<Ticker> tickers) throws InvalidCurrency {
+		BigDecimal stopLoss = sourceAmount.subtract(sourceAmount.multiply(maxLoss, MathContext.DECIMAL64),
+				MathContext.DECIMAL64);
 
 		BigDecimal varGain = variation(tickers);
 
-		BigDecimal desiredProfit = sourceAmount.multiply(this.minProfit,
-				MathContext.DECIMAL64);
+		BigDecimal desiredProfit = sourceAmount.multiply(this.minProfit, MathContext.DECIMAL64);
+
+		ProfitStrategy profitStrategy = new ProfitStrategy(stopLoss);
 
 		// back-to-original-currency profit calculation
 		if (varGain.compareTo(desiredProfit) >= 1) {
 			profitStrategy.addStep(targetCurrency);
 			profitStrategy.setExpectedProfit(varGain);
 		} else {
-			List<Ticker> txCurrencies = matchTickers(targetCurrency,
-					sourceCurrency, tickers);
+			// check if there is a loss
+			BigDecimal expectedLoss = calculateLoss(tickers, varGain);
 
-			for (Ticker t : txCurrencies) {
-				BuyingPrice intermediateBuyingPrice = new BuyingPrice(
-						targetCurrency, t);
-				BigDecimal intermediatePrice = intermediateBuyingPrice
-						.getPrice().multiply(targetAmount,
-								MathContext.DECIMAL64);
-				Ticker closingTicker = matchTicker(new CurrencyPair(
-						intermediateBuyingPrice.getTargetCurrency(),
-						sourceCurrency), tickers);
-				SellingPrice closingPrice = new SellingPrice(sourceCurrency,
-						closingTicker);
-				BigDecimal endPrice = closingPrice.getPrice().multiply(
-						intermediatePrice, MathContext.DECIMAL64);
+			if (expectedLoss.compareTo(stopLoss) >= 1) {
+				profitStrategy.addStep(targetCurrency);
+				profitStrategy.setExpectedProfit(expectedLoss);
+			} else {
+				List<Ticker> txCurrencies = matchTickers(targetCurrency, sourceCurrency, tickers);
 
-				BigDecimal crossGain = endPrice.subtract(sourceAmount,
-						MathContext.DECIMAL64);
+				for (Ticker t : txCurrencies) {
+					BuyingPrice intermediateBuyingPrice = new BuyingPrice(targetCurrency, t);
+					BigDecimal intermediatePrice = intermediateBuyingPrice.getPrice().multiply(targetAmount,
+							MathContext.DECIMAL64);
+					Ticker closingTicker = matchTicker(
+							new CurrencyPair(intermediateBuyingPrice.getTargetCurrency(), sourceCurrency), tickers);
+					SellingPrice closingPrice = new SellingPrice(sourceCurrency, closingTicker);
+					BigDecimal endPrice = closingPrice.getPrice().multiply(intermediatePrice, MathContext.DECIMAL64);
 
-				if (crossGain.compareTo(desiredProfit) >= 1) {
-					profitStrategy.addStep(intermediateBuyingPrice
-							.getTargetCurrency());
-					profitStrategy.addStep(targetCurrency);
-					profitStrategy.setExpectedProfit(crossGain);
-					break;
+					BigDecimal crossGain = endPrice.subtract(sourceAmount, MathContext.DECIMAL64);
+
+					if (crossGain.compareTo(desiredProfit) >= 1) {
+						profitStrategy.addStep(intermediateBuyingPrice.getTargetCurrency());
+						profitStrategy.addStep(targetCurrency);
+						profitStrategy.setExpectedProfit(crossGain);
+						break;
+					}
+
 				}
 
 			}
@@ -140,42 +137,33 @@ public class Position {
 		return profitStrategy;
 	}
 
-	public boolean hasPercentageProfit(List<Ticker> tickers)
-			throws InvalidCurrency {
+	public boolean hasPercentageProfit(List<Ticker> tickers) throws InvalidCurrency {
 		BigDecimal varGain = variation(tickers);
 
-		BigDecimal desiredProfit = sourceAmount.multiply(minProfit,
-				MathContext.DECIMAL64);
+		BigDecimal desiredProfit = sourceAmount.multiply(minProfit, MathContext.DECIMAL64);
 
 		// back-to-original-currency profit calculation
 		if (varGain.compareTo(desiredProfit) >= 1) {
 			return true;
 		}
 
-		List<Ticker> txCurrencies = matchTickers(targetCurrency,
-				sourceCurrency, tickers);
+		List<Ticker> txCurrencies = matchTickers(targetCurrency, sourceCurrency, tickers);
 
 		for (Ticker t : txCurrencies) {
-			BuyingPrice intermediateBuyingPrice = new BuyingPrice(
-					targetCurrency, t);
-			BigDecimal intermediatePrice = intermediateBuyingPrice.getPrice()
-					.multiply(targetAmount, MathContext.DECIMAL64);
-			Ticker closingTicker = matchTicker(
-					new CurrencyPair(
-							intermediateBuyingPrice.getTargetCurrency(),
-							sourceCurrency), tickers);
-			SellingPrice closingPrice = new SellingPrice(sourceCurrency,
-					closingTicker);
-			BigDecimal endPrice = closingPrice.getPrice().multiply(
-					intermediatePrice, MathContext.DECIMAL64);
-
-			BigDecimal crossGain = endPrice.subtract(sourceAmount,
+			BuyingPrice intermediateBuyingPrice = new BuyingPrice(targetCurrency, t);
+			BigDecimal intermediatePrice = intermediateBuyingPrice.getPrice().multiply(targetAmount,
 					MathContext.DECIMAL64);
+			Ticker closingTicker = matchTicker(
+					new CurrencyPair(intermediateBuyingPrice.getTargetCurrency(), sourceCurrency), tickers);
+			SellingPrice closingPrice = new SellingPrice(sourceCurrency, closingTicker);
+			BigDecimal endPrice = closingPrice.getPrice().multiply(intermediatePrice, MathContext.DECIMAL64);
 
-			System.out.println(">> gain (through "
-					+ intermediateBuyingPrice.getTargetCurrency() + ") is "
-					+ crossGain + " " + sourceCurrency);
-
+			BigDecimal crossGain = endPrice.subtract(sourceAmount, MathContext.DECIMAL64);
+			/*
+			 * System.out.println(">> gain (through " +
+			 * intermediateBuyingPrice.getTargetCurrency() + ") is " + crossGain + " " +
+			 * sourceCurrency);
+			 */
 			if (crossGain.compareTo(desiredProfit) >= 1) {
 				return true;
 			}
@@ -185,14 +173,19 @@ public class Position {
 		return false;
 	}
 
+	public BigDecimal calculateLoss(List<Ticker> tickers, BigDecimal diff) throws InvalidCurrency {
+		BigDecimal varLoss = diff.negate();
+		BigDecimal estimatedLoss = sourceAmount.subtract(varLoss, MathContext.DECIMAL64);
+
+		return estimatedLoss;
+	}
+
 	public boolean lossAbove(List<Ticker> tickers) throws InvalidCurrency {
 		BigDecimal loss = sourceAmount.multiply(maxLoss, MathContext.DECIMAL64);
-		BigDecimal toleratedLoss = sourceAmount.subtract(loss,
-				MathContext.DECIMAL64);
+		BigDecimal toleratedLoss = sourceAmount.subtract(loss, MathContext.DECIMAL64);
 
 		BigDecimal varLoss = variation(tickers).negate();
-		BigDecimal estimatedLoss = sourceAmount.subtract(varLoss,
-				MathContext.DECIMAL64);
+		BigDecimal estimatedLoss = sourceAmount.subtract(varLoss, MathContext.DECIMAL64);
 
 		if (toleratedLoss.compareTo(estimatedLoss) >= 1) {
 			return true;
@@ -215,8 +208,7 @@ public class Position {
 
 	public BigDecimal currentValue(List<Ticker> tickers) throws InvalidCurrency {
 		Ticker closingTicker = matchTicker(pair, tickers);
-		return new SellingPrice(sourceCurrency, closingTicker).getPrice()
-				.multiply(targetAmount, MathContext.DECIMAL64);
+		return new SellingPrice(sourceCurrency, closingTicker).getPrice().multiply(targetAmount, MathContext.DECIMAL64);
 	}
 
 	public Currency getCurrency() {

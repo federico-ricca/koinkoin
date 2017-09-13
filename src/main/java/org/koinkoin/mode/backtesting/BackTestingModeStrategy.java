@@ -34,12 +34,11 @@ public class BackTestingModeStrategy implements TradingModeStrategy {
 
 	@Override
 	public void interval() {
-		try {
+/*		try {
 			Thread.sleep(500);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 	}
 
 	@Override

@@ -19,11 +19,21 @@ import org.knowm.xchange.currency.Currency;
 public class ProfitStrategy {
 
 	private BigDecimal expectedProfit;
+	private BigDecimal stopLoss;
+
+	public ProfitStrategy(BigDecimal stopLoss) {
+		this.expectedProfit = BigDecimal.ZERO;
+		this.stopLoss = stopLoss;
+	}
 
 	public void addStep(Currency currency) {
 	}
 
 	public void setExpectedProfit(BigDecimal profit) {
+		if (profit == null) {
+			return;
+		}
+
 		expectedProfit = profit;
 	}
 
@@ -31,4 +41,11 @@ public class ProfitStrategy {
 		return expectedProfit;
 	}
 
+	public boolean hasProfits() {
+		return (expectedProfit.compareTo(BigDecimal.ZERO) >= 1);
+	}
+
+	public boolean reachedStopLoss() {
+		return (expectedProfit.compareTo(stopLoss) <= 0);
+	}
 }

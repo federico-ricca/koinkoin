@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -87,7 +88,11 @@ public class MarketDataLog {
 	private PrintStream initPrintStream(String name) throws IOException {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
 
-		String fileName = new StringBuilder(name).append("-")
+		File folder = new File("data/" + simpleDateFormat.format(GregorianCalendar.getInstance().getTime()));
+	
+		folder.mkdirs();
+		
+		String fileName = new StringBuilder(folder.getAbsolutePath()).append(name).append("-")
 				.append(simpleDateFormat.format(GregorianCalendar.getInstance().getTime())).append(".csv").toString();
 
 		File file = new File(fileName);

@@ -22,6 +22,7 @@ import org.koinkoin.core.Fund;
 import org.koinkoin.core.InsufficientFundsException;
 import org.koinkoin.core.InvalidCurrency;
 import org.koinkoin.trade.Position;
+import org.koinkoin.trade.TradingOperation;
 import org.koinkoin.trade.TradingStrategy;
 
 public class TradingBot {
@@ -31,13 +32,12 @@ public class TradingBot {
 	private List<Position> closedPositions = new ArrayList<>();
 	private MarketDataService marketDataService;
 	private List<CurrencyPair> tradingCurrencyPairs = new ArrayList<CurrencyPair>();
-	private TradingStrategy strategy;
+	private TradingOperation tradingOperation;
 
-	public TradingBot(Fund fund, MarketDataService marketDataService,
-			TradingStrategy strategy) {
+	public TradingBot(Fund fund, MarketDataService marketDataService, TradingOperation tradingOperation) {
 		this.fund = fund;
 		this.marketDataService = marketDataService;
-		this.strategy = strategy;
+		this.tradingOperation = tradingOperation;
 	}
 
 	public void trade(List<Ticker> tickers) throws InvalidCurrency, InsufficientFundsException {
@@ -55,9 +55,9 @@ public class TradingBot {
 		}
 
 		for (Position position : positions) {
-			showPosition(position, tickers);
+			// showPosition(position, tickers);
 
-			boolean closePosition = strategy.trade(fund, position, tickers);
+			boolean closePosition = tradingOperation.trade(fund, position, tickers);
 
 			if (closePosition) {
 				closedPositions.add(position);
@@ -98,16 +98,12 @@ public class TradingBot {
 		return prices;
 	}
 
-	private void showPosition(Position position, List<Ticker> tickers)
-			throws InvalidCurrency {
-		System.out.println("Current position: "
-				+ position.currentValue(tickers) + " " + position.getCurrency()
-				+ ", variation=" + position.variation(tickers) + " "
-				+ position.getCurrency());
+	private void showPosition(Position position, List<Ticker> tickers) throws InvalidCurrency {
+		System.out.println("Current position: " + position.currentValue(tickers) + " " + position.getCurrency()
+				+ ", variation=" + position.variation(tickers) + " " + position.getCurrency());
 	}
 
-	public void open(Position position, List<Ticker> tickers)
-			throws InvalidCurrency, InsufficientFundsException {
+	public void open(Position position, List<Ticker> tickers) throws InvalidCurrency, InsufficientFundsException {
 
 		fund.withdraw(position.getAmount(), position.getCurrency());
 		positions.add(position);

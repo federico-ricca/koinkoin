@@ -13,6 +13,7 @@
 package org.koinkoin.integration.kraken;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -44,8 +45,13 @@ public class KrakenTickerFactory implements TickerFactory {
 		String pairs = builder.toString();
 		pairs = pairs.substring(0, pairs.length() - 1);
 
-		ResponseEntity<KrakenTickerResult> response = restTemplate.getForEntity(GET_TICKER_INFORMATION,
-				KrakenTickerResult.class, pairs);
+		ResponseEntity<KrakenTickerResult> response;
+
+		try {
+			response = restTemplate.getForEntity(GET_TICKER_INFORMATION, KrakenTickerResult.class, pairs);
+		} catch (RuntimeException e) {
+			return Collections.emptyList();
+		}
 
 		List<Ticker> tickers = new ArrayList<>();
 

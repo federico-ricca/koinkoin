@@ -36,7 +36,7 @@ public class IntegrationConfig {
 		MarketPort marketPort = new MarketPort();
 
 		ExchangeDescriptor exchange = marketPort.addExchange("kraken", krakenMarketDataService);
-		exchange.addCurrencyPair("BTC", "EUR");
+		exchange.addCurrencyPair("XBT", "EUR");
 		exchange.addCurrencyPair("DASH", "XBT");
 		exchange.addCurrencyPair("DASH", "EUR");
 		exchange.addCurrencyPair("XRP", "EUR");

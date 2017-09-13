@@ -12,24 +12,29 @@
  ***************************************************************************/
 package org.koinkoin.integration;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.knowm.xchange.service.marketdata.MarketDataService;
 
 public class MarketPort {
-	private List<ExchangeDescriptor> exchanges = new ArrayList<ExchangeDescriptor>();
+	private Map<String, ExchangeDescriptor> exchanges = new HashMap<String, ExchangeDescriptor>();
 
 	public ExchangeDescriptor addExchange(String exchangeId, MarketDataService marketDataService) {
 		ExchangeDescriptor exchangeDescriptor = new ExchangeDescriptor(exchangeId, marketDataService);
 
-		exchanges.add(exchangeDescriptor);
+		exchanges.put(exchangeId, exchangeDescriptor);
 
 		return exchangeDescriptor;
 	}
 
-	public List<ExchangeDescriptor> getExchanges() {
-		return Collections.unmodifiableList(exchanges);
+	public Collection<ExchangeDescriptor> getExchanges() {
+		return Collections.unmodifiableCollection(exchanges.values());
+	}
+
+	public MarketDataService getExchange(String exchangeId) {
+		return exchanges.get(exchangeId).getMarketDataService();
 	}
 }
