@@ -18,31 +18,35 @@ import org.knowm.xchange.dto.marketdata.Ticker;
 import org.koinkoin.core.Fund;
 import org.koinkoin.core.InsufficientFundsException;
 import org.koinkoin.core.InvalidCurrency;
-import org.koinkoin.trade.Position;
-import org.koinkoin.trade.ProfitStrategy;
-import org.koinkoin.trade.TradingStrategy;
+import org.koinkoin.core.ProfitBalance;
+import org.koinkoin.trade.strategy.TradingStrategy;
 
 public class TradingOperation {
+	private TradingStrategy tradingStrategy;
+
+	public TradingOperation(TradingStrategy tradingStrategy) {
+		this.tradingStrategy = tradingStrategy;
+	}
 
 	public boolean trade(Fund fund, Position position, List<Ticker> tickers)
 			throws InvalidCurrency, InsufficientFundsException {
-		ProfitStrategy profitStrategy = position.calculateProfitStrategy(tickers);
+		ProfitBalance profitBalance = tradingStrategy.execute(position, tickers);
 
 		boolean closePosition = false;
 
-		if (profitStrategy.hasProfits()) {
+		if (profitBalance.hasProfits()) {
 			System.out.println("Closing position.");
-			position.close(profitStrategy);
-			fund.deposit(position.getAmount(), position.getCurrency());
-			fund.deposit(profitStrategy.getExpectedProfit(), position.getCurrency());
+			position.close(profitBalance);
+			fund.deposit(position.getSourceAmount(), position.getSourceCurrency());
+			fund.deposit(profitBalance.getExpectedProfit(), position.getSourceCurrency());
 			closePosition = true;
 			System.out.println("Actual funds: " + fund.getAmount());
-		} else if (profitStrategy.reachedStopLoss()) {
+		} else if (profitBalance.reachedStopLoss()) {
 			System.out
-					.println("Loss above " + position.getMaxLoss() + " %, closing at " + position.currentValue(tickers)
-							+ "; loss=" + profitStrategy.getExpectedProfit() + " " + position.getCurrency());
-			position.close(profitStrategy);
-			fund.deposit(profitStrategy.getExpectedProfit(), position.getCurrency());
+					.println("Loss above " + position.getPercentageStopLoss() + " %, closing at " + position.currentValue(tickers)
+							+ "; loss=" + profitBalance.getExpectedProfit() + " " + position.getSourceCurrency());
+			position.close(profitBalance);
+			fund.deposit(profitBalance.getExpectedProfit(), position.getSourceCurrency());
 			closePosition = true;
 			System.out.println("Actual funds: " + fund.getAmount());
 		} else {

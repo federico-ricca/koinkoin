@@ -35,6 +35,7 @@ import org.koinkoin.mode.TradingModeStrategy;
 import org.koinkoin.mode.real.RealTradingModeStrategy;
 import org.koinkoin.trade.Position;
 import org.koinkoin.trade.TradingOperation;
+import org.koinkoin.trade.strategy.SimpleCryptoAssetArbitrageTradingStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -106,18 +107,16 @@ public class Swarm implements Runnable {
 		Fund fund = new Fund(new BigDecimal(500), Currency.EUR);
 
 		tradingModeStrategy = new RealTradingModeStrategy();
-		//tradingModeStrategy = new BackTestingModeStrategy();
-		
+		// tradingModeStrategy = new BackTestingModeStrategy();
+
 		TradingBot tradingBot = new TradingBot(fund, marketPort.getExchange("kraken"),
-				new TradingOperation());
-		tradingBot.queue(Position.builder().withAmount(100f)
-				.withCurrency(Currency.EUR)
-				.withPair(new CurrencyPair("XBT", "EUR"))
-				.withMinProfit(0.5f / 100.0f).withMaxLoss(0.3f / 100.0f).sustained(true)
-				.create());
+				new TradingOperation(new SimpleCryptoAssetArbitrageTradingStrategy()));
+		tradingBot.queue(Position.builder().withAmount(100f).withCurrency(Currency.EUR)
+				.withPair(new CurrencyPair("XBT", "EUR")).withPercentageMinProfit(0.5f / 100.0f)
+				.withPercentageStopLoss(0.3f / 100.0f).sustained(true).create());
 
 		this.add("kraken", tradingBot);
-		
+
 		while (running.get()) {
 			for (ExchangeDescriptor desc : exchanges) {
 				TickerSource source = tradingModeStrategy.newTickerSource(desc);

@@ -23,7 +23,6 @@ import org.koinkoin.core.InsufficientFundsException;
 import org.koinkoin.core.InvalidCurrency;
 import org.koinkoin.trade.Position;
 import org.koinkoin.trade.TradingOperation;
-import org.koinkoin.trade.TradingStrategy;
 
 public class TradingBot {
 	private Fund fund;
@@ -99,13 +98,13 @@ public class TradingBot {
 	}
 
 	private void showPosition(Position position, List<Ticker> tickers) throws InvalidCurrency {
-		System.out.println("Current position: " + position.currentValue(tickers) + " " + position.getCurrency()
-				+ ", variation=" + position.variation(tickers) + " " + position.getCurrency());
+		System.out.println("Current position: " + position.currentValue(tickers) + " " + position.getSourceCurrency()
+				+ ", variation=" + position.variation(tickers) + " " + position.getSourceCurrency());
 	}
 
 	public void open(Position position, List<Ticker> tickers) throws InvalidCurrency, InsufficientFundsException {
 
-		fund.withdraw(position.getAmount(), position.getCurrency());
+		fund.withdraw(position.getSourceAmount(), position.getSourceCurrency());
 		positions.add(position);
 
 		position.open(tickers);

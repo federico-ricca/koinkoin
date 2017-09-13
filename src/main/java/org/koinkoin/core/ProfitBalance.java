@@ -10,12 +10,42 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  ***************************************************************************/
-package org.koinkoin.trade;
+package org.koinkoin.core;
 
 import java.math.BigDecimal;
 
 import org.knowm.xchange.currency.Currency;
 
-public class ProfitStrategy {
+public class ProfitBalance {
 
+	private BigDecimal expectedProfit;
+	private BigDecimal stopLoss;
+
+	public ProfitBalance(BigDecimal stopLoss) {
+		this.expectedProfit = BigDecimal.ZERO;
+		this.stopLoss = stopLoss;
+	}
+
+	public void addStep(Currency currency) {
+	}
+
+	public void setExpectedProfit(BigDecimal profit) {
+		if (profit == null) {
+			return;
+		}
+
+		expectedProfit = profit;
+	}
+
+	public BigDecimal getExpectedProfit() {
+		return expectedProfit;
+	}
+
+	public boolean hasProfits() {
+		return (expectedProfit.compareTo(BigDecimal.ZERO) >= 1);
+	}
+
+	public boolean reachedStopLoss() {
+		return (expectedProfit.compareTo(stopLoss) <= 0);
+	}
 }
