@@ -48,4 +48,12 @@ public class ProfitBalance {
 	public boolean reachedStopLoss() {
 		return (expectedProfit.compareTo(stopLoss) <= 0);
 	}
+
+	/*
+	 * Hypothetical value of position at exit
+	 */
+	public BigDecimal exitValue() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

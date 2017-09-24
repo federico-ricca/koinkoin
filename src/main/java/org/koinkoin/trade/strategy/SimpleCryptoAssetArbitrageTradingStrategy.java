@@ -29,9 +29,7 @@ public class SimpleCryptoAssetArbitrageTradingStrategy implements TradingStrateg
 	@Override
 	public ProfitBalance execute(Position position, List<Ticker> tickers) throws InvalidCurrency {
 		BigDecimal stopLoss = position.getStopLoss();
-
 		BigDecimal varGain = position.variation(tickers);
-
 		BigDecimal minProfit = position.getMinProfit();
 
 		ProfitBalance profitBalance = new ProfitBalance(stopLoss);
@@ -42,11 +40,11 @@ public class SimpleCryptoAssetArbitrageTradingStrategy implements TradingStrateg
 			profitBalance.setExpectedProfit(varGain);
 		} else {
 			// check if there is a loss
-			BigDecimal expectedLoss = position.calculateLoss(tickers, varGain);
+			BigDecimal currentValue = position.currentValue(tickers);
 
-			if (expectedLoss.compareTo(stopLoss) >= 1) {
+			if (currentValue.compareTo(stopLoss) >= 1) {
 				profitBalance.addStep(position.getTargetCurrency());
-				profitBalance.setExpectedProfit(expectedLoss);
+				profitBalance.setExpectedProfit(varGain);
 			} else {
 				List<Ticker> txCurrencies = position.matchTickers(position.getTargetCurrency(),
 						position.getSourceCurrency(), tickers);
