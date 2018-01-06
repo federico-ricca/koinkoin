@@ -12,41 +12,14 @@
  ***************************************************************************/
 package org.koinkoin.integration;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.marketdata.Ticker;
-import org.knowm.xchange.service.marketdata.MarketDataService;
 
-public class TickerSource {
+public interface TickerFactory {
 
-	private MarketPort marketPort;
-	private Map<String, Set<CurrencyPair>> currencyPairs;
-	private Map<String, List<Ticker>> tickersPerExchange;
-	private ExchangeDescriptor descriptor;
-
-	public TickerSource(ExchangeDescriptor descriptor) {
-		this.descriptor = descriptor;
-	}
-
-	public boolean hasData() {
-		return descriptor.getTradingCurrencyPairs() != null && !descriptor.getTradingCurrencyPairs().isEmpty();
-	}
-
-	public List<Ticker> tickers() throws Exception {
-		List<Ticker> prices = new ArrayList<Ticker>();
-
-		MarketDataService marketDataService = descriptor.getMarketDataService();
-
-		for (CurrencyPair p : descriptor.getTradingCurrencyPairs()) {
-			Ticker ticker = marketDataService.getTicker(p);
-			prices.add(ticker);
-		}
-
-		return prices;
-	}
+	List<Ticker> getTickers(Set<CurrencyPair> currencyPairs);
 
 }

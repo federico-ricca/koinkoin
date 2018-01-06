@@ -10,7 +10,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  ***************************************************************************/
-package org.koinkoin.trade.strategy;
+package org.koinkoin.trade;
 
 import java.util.List;
 
@@ -18,31 +18,35 @@ import org.knowm.xchange.dto.marketdata.Ticker;
 import org.koinkoin.core.Fund;
 import org.koinkoin.core.InsufficientFundsException;
 import org.koinkoin.core.InvalidCurrency;
-import org.koinkoin.trade.Position;
-import org.koinkoin.trade.ProfitStrategy;
-import org.koinkoin.trade.TradingStrategy;
+import org.koinkoin.core.ProfitBalance;
+import org.koinkoin.trade.strategy.TradingStrategy;
 
-public class PercentageVariationTradingStrategy implements TradingStrategy {
+public class TradingOperation {
+	private TradingStrategy tradingStrategy;
 
-	@Override
+	public TradingOperation(TradingStrategy tradingStrategy) {
+		this.tradingStrategy = tradingStrategy;
+	}
+
 	public boolean trade(Fund fund, Position position, List<Ticker> tickers)
 			throws InvalidCurrency, InsufficientFundsException {
-		ProfitStrategy profitStrategy = position.calculateProfitStrategy(tickers);
+		ProfitBalance profitBalance = tradingStrategy.execute(position, tickers);
 
 		boolean closePosition = false;
 
-		if (position.hasPercentageProfit(tickers)) {
+		if (profitBalance.hasProfits()) {
 			System.out.println("Closing position.");
-			position.close(profitStrategy);
-			fund.deposit(position.getAmount(), position.getCurrency());
-			fund.deposit(profitStrategy.getExpectedProfit(), position.getCurrency());
+			position.close(profitBalance);
+			fund.deposit(position.getSourceAmount(), position.getSourceCurrency());
+			fund.deposit(profitBalance.getExpectedProfit(), position.getSourceCurrency());
 			closePosition = true;
 			System.out.println("Actual funds: " + fund.getAmount());
-		} else if (position.lossAbove(tickers)) {
-			System.out.println(
-					"Loss above " + position.getMaxLoss() + " %, closing at " + position.currentValue(tickers));
-			position.close(profitStrategy);
-			fund.deposit(profitStrategy.getExpectedProfit(), position.getCurrency());
+		} else if (profitBalance.reachedStopLoss()) {
+			System.out
+					.println("Loss above " + position.getPercentageStopLoss() + " %, closing at " + position.currentValue(tickers)
+							+ "; loss=" + profitBalance.getExpectedProfit() + " " + position.getSourceCurrency());
+			position.close(profitBalance);
+			fund.deposit(profitBalance.getExpectedProfit(), position.getSourceCurrency());
 			closePosition = true;
 			System.out.println("Actual funds: " + fund.getAmount());
 		} else {

@@ -60,7 +60,7 @@ function fetchTicker() {
 
 	var msg = {
 		'exchangeId' : 'kraken',
-		'base' : 'BTC',
+		'base' : 'XBT',
 		'counter' : 'EUR'
 	}
 	stompClient.send("/feed/ticker", {}, JSON.stringify(msg));

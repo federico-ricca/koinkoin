@@ -12,19 +12,30 @@
  ***************************************************************************/
 package org.koinkoin.swarm;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.knowm.xchange.currency.Currency;
+import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.marketdata.Ticker;
 import org.koinkoin.bot.TradingBot;
+import org.koinkoin.core.Fund;
 import org.koinkoin.core.InsufficientFundsException;
 import org.koinkoin.core.InvalidCurrency;
 import org.koinkoin.core.PriceData;
+import org.koinkoin.data.TickerSource;
 import org.koinkoin.integration.ExchangeDescriptor;
 import org.koinkoin.integration.MarketPort;
-import org.koinkoin.integration.TickerSource;
+import org.koinkoin.mode.TradingModeStrategy;
+import org.koinkoin.mode.real.RealTradingModeStrategy;
+import org.koinkoin.trade.Position;
+import org.koinkoin.trade.TradingOperation;
+import org.koinkoin.trade.strategy.SimpleCryptoAssetArbitrageTradingStrategy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -35,11 +46,16 @@ public class Swarm implements Runnable {
 	private Map<String, List<TradingBot>> botsPerExchange = new HashMap<>();
 	private SwarmLog swarmLog;
 	private MarketPort marketPort;
+	private AtomicBoolean running;
+	private AtomicBoolean marketDataLogOpen;
+	private TradingModeStrategy tradingModeStrategy;
 
 	@Autowired
 	public Swarm(MarketPort marketPort) {
 		swarmLog = new SwarmLog();
 		this.marketPort = marketPort;
+		running = new AtomicBoolean(false);
+		marketDataLogOpen = new AtomicBoolean(false);
 	}
 
 	public void add(String exchangeId, TradingBot tradingBot) {
@@ -70,7 +86,6 @@ public class Swarm implements Runnable {
 
 	public PriceData getPrice(String exchangeId, String base, String counter) {
 		Ticker ticker = swarmLog.peek(exchangeId, base, counter);
-		System.out.println(ticker);
 
 		PriceData priceData = new PriceData(ticker.getAsk(), ticker.getBid());
 		priceData.setHigh(ticker.getHigh());
@@ -79,13 +94,32 @@ public class Swarm implements Runnable {
 		return priceData;
 	}
 
+	public void stop() {
+		running.set(false);
+	}
+
 	@Override
 	public void run() {
-		while (true) {
-			List<ExchangeDescriptor> exchanges = marketPort.getExchanges();
+		Collection<ExchangeDescriptor> exchanges = marketPort.getExchanges();
 
+		running.set(true);
+
+		Fund fund = new Fund(new BigDecimal(500), Currency.EUR);
+
+		tradingModeStrategy = new RealTradingModeStrategy();
+		// tradingModeStrategy = new BackTestingModeStrategy();
+
+		TradingBot tradingBot = new TradingBot(fund, marketPort.getExchange("kraken"),
+				new TradingOperation(new SimpleCryptoAssetArbitrageTradingStrategy()));
+		tradingBot.queue(Position.builder().withAmount(100f).withCurrency(Currency.EUR)
+				.withPair(new CurrencyPair("XBT", "EUR")).withPercentageMinProfit(0.5f / 100.0f)
+				.withPercentageStopLoss(0.3f / 100.0f).sustained(true).create());
+
+		this.add("kraken", tradingBot);
+
+		while (running.get()) {
 			for (ExchangeDescriptor desc : exchanges) {
-				TickerSource source = new TickerSource(desc);
+				TickerSource source = tradingModeStrategy.newTickerSource(desc);
 
 				if (source.hasData()) {
 					try {
@@ -94,17 +128,36 @@ public class Swarm implements Runnable {
 						trade(desc.getExchangeId(), tickers);
 
 						swarmLog.append(desc.getExchangeId(), tickers);
+
+						// disable on backtesting
+						if (marketDataLogOpen.get()) {
+							desc.getMarketDataLog().add(tickers);
+						}
 					} catch (Exception e) {
+						e.printStackTrace();
 						System.out.println("ERROR - " + e.getMessage());
 					}
 				}
 			}
 
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			tradingModeStrategy.interval();
+		}
+
+		closeMarketDataLog();
+	}
+
+	public void openMarketDataLog() {
+		marketDataLogOpen.set(true);
+	}
+
+	public void closeMarketDataLog() {
+		if (marketDataLogOpen.get()) {
+			marketDataLogOpen.set(false);
+
+			Collection<ExchangeDescriptor> exchanges = marketPort.getExchanges();
+
+			for (ExchangeDescriptor desc : exchanges) {
+				desc.getMarketDataLog().close();
 			}
 		}
 	}

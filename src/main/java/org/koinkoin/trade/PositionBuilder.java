@@ -20,8 +20,8 @@ import org.knowm.xchange.currency.CurrencyPair;
 public class PositionBuilder {
 	private Currency currency;
 	private BigDecimal amount = BigDecimal.ZERO;
-	private BigDecimal minProfit = BigDecimal.ZERO;
-	private BigDecimal maxLoss = BigDecimal.ZERO;
+	private BigDecimal percentageMinProfit = BigDecimal.ZERO;
+	private BigDecimal percentageStopLoss = BigDecimal.ZERO;
 	private CurrencyPair pair;
 	private boolean bSustained = false;
 
@@ -40,13 +40,13 @@ public class PositionBuilder {
 		return this;
 	}
 
-	public PositionBuilder withMinProfit(float minProfit) {
-		this.minProfit = new BigDecimal(minProfit);
+	public PositionBuilder withPercentageMinProfit(float percentageMinProfit) {
+		this.percentageMinProfit = new BigDecimal(percentageMinProfit);
 		return this;
 	}
 
-	public PositionBuilder withMaxLoss(float maxLoss) {
-		this.maxLoss = new BigDecimal(maxLoss);
+	public PositionBuilder withPercentageStopLoss(float percentageStopLoss) {
+		this.percentageStopLoss = new BigDecimal(percentageStopLoss);
 		return this;
 	}
 
@@ -56,9 +56,8 @@ public class PositionBuilder {
 	}
 
 	public Position create() {
-		Position p = new Position(amount, currency, pair);
-		p.setMinProfit(minProfit);
-		p.setMaxLoss(maxLoss);
+		Position p = new Position(amount, currency, pair, percentageStopLoss);
+		p.setPercentageMinProfit(percentageMinProfit);
 		p.setSustained(bSustained);
 
 		return p;

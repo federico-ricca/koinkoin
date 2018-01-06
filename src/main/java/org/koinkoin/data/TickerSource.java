@@ -10,17 +10,14 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  ***************************************************************************/
-package org.koinkoin.trade;
+package org.koinkoin.data;
 
 import java.util.List;
 
 import org.knowm.xchange.dto.marketdata.Ticker;
-import org.koinkoin.core.Fund;
-import org.koinkoin.core.InsufficientFundsException;
-import org.koinkoin.core.InvalidCurrency;
 
-public interface TradingStrategy {
+public interface TickerSource {
+	boolean hasData();
 
-	public boolean trade(Fund fund, Position position, List<Ticker> tickers)
-			throws InvalidCurrency, InsufficientFundsException;
+	List<Ticker> tickers() throws Exception;
 }

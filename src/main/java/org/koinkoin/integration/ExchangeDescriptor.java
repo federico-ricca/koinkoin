@@ -17,17 +17,21 @@ import java.util.Set;
 
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.service.marketdata.MarketDataService;
+import org.koinkoin.data.MarketDataLog;
 
 public class ExchangeDescriptor {
 
 	private String exchangeId;
 	private MarketDataService marketDataService;
 	private Set<CurrencyPair> tradingCurrencyPairs;
+	private MarketDataLog marketDataLog;
+	private TickerFactory tickerFactory;
 
-	public ExchangeDescriptor(String serviceId, MarketDataService marketDataService) {
-		setExchangeId(serviceId);
+	public ExchangeDescriptor(String exchangeId, MarketDataService marketDataService) {
+		setExchangeId(exchangeId);
 		setMarketDataService(marketDataService);
 		tradingCurrencyPairs = new HashSet<>();
+		marketDataLog = new MarketDataLog(exchangeId);
 	}
 
 	public String getExchangeId() {
@@ -55,4 +59,15 @@ public class ExchangeDescriptor {
 		return tradingCurrencyPairs;
 	}
 
+	public MarketDataLog getMarketDataLog() {
+		return marketDataLog;
+	}
+
+	public TickerFactory getTickerFactory() {
+		return tickerFactory;
+	}
+
+	public void setTickerFactory(TickerFactory tickerFactory) {
+		this.tickerFactory = tickerFactory;
+	}
 }

@@ -15,10 +15,10 @@ package org.koinkoin.config;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.ExchangeFactory;
 import org.knowm.xchange.kraken.KrakenExchange;
-import org.knowm.xchange.poloniex.PoloniexExchange;
 import org.knowm.xchange.service.marketdata.MarketDataService;
 import org.koinkoin.integration.ExchangeDescriptor;
 import org.koinkoin.integration.MarketPort;
+import org.koinkoin.integration.kraken.KrakenTickerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -36,7 +36,14 @@ public class IntegrationConfig {
 		MarketPort marketPort = new MarketPort();
 
 		ExchangeDescriptor exchange = marketPort.addExchange("kraken", krakenMarketDataService);
-		exchange.addCurrencyPair("BTC", "EUR");
+		exchange.addCurrencyPair("XBT", "EUR");
+		exchange.addCurrencyPair("DASH", "XBT");
+		exchange.addCurrencyPair("DASH", "EUR");
+		exchange.addCurrencyPair("XRP", "EUR");
+		exchange.addCurrencyPair("XRP", "XBT");
+		exchange.addCurrencyPair("XMR", "XBT");
+		exchange.addCurrencyPair("XMR", "EUR");
+		exchange.setTickerFactory(new KrakenTickerFactory());
 		
 		return marketPort;
 	}

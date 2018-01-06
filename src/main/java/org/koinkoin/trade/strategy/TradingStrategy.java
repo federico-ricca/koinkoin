@@ -10,25 +10,15 @@
    See the License for the specific language governing permissions and
    limitations under the License.
  ***************************************************************************/
-package org.koinkoin.trade;
+package org.koinkoin.trade.strategy;
 
-import java.math.BigDecimal;
+import java.util.List;
 
-import org.knowm.xchange.currency.Currency;
+import org.knowm.xchange.dto.marketdata.Ticker;
+import org.koinkoin.core.InvalidCurrency;
+import org.koinkoin.core.ProfitBalance;
+import org.koinkoin.trade.Position;
 
-public class ProfitStrategy {
-
-	private BigDecimal expectedProfit;
-
-	public void addStep(Currency currency) {
-	}
-
-	public void setExpectedProfit(BigDecimal profit) {
-		expectedProfit = profit;
-	}
-
-	public BigDecimal getExpectedProfit() {
-		return expectedProfit;
-	}
-
+public interface TradingStrategy {
+	public ProfitBalance execute(Position position, List<Ticker> tickers) throws InvalidCurrency;
 }
